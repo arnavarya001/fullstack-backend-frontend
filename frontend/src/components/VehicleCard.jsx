@@ -7,6 +7,7 @@ function VehicleCard({ vehicle, user, onDelete }) {
             case 'Active':
                 return { backgroundColor: '#dcfce7', color: '#15803d' };
             case 'Under Maintenance':
+            case 'Maintenance':
                 return { backgroundColor: '#fef3c7', color: '#b45309' };
             case 'Inactive':
                 return { backgroundColor: '#fee2e2', color: '#b91c1c' };
@@ -14,6 +15,28 @@ function VehicleCard({ vehicle, user, onDelete }) {
                 return { backgroundColor: '#f1f5f9', color: '#475569' };
         }
     };
+
+    const getInsuranceTag = (expiryDate) => {
+        if (!expiryDate) return null;
+        const today = new Date();
+        const expDate = new Date(expiryDate);
+        if (isNaN(expDate.getTime())) return null;
+
+        today.setHours(0, 0, 0, 0);
+        expDate.setHours(0, 0, 0, 0);
+
+        const diffDays = Math.ceil((expDate - today) / (1000 * 60 * 60 * 24));
+
+        if (diffDays < 0) {
+            return { text: 'Expired', bg: '#fee2e2', color: '#dc2626' };
+        }
+        if (diffDays <= 30) {
+            return { text: 'Expiring soon', bg: '#ffedd5', color: '#c2410c' };
+        }
+        return null;
+    };
+
+    const insuranceTag = getInsuranceTag(vehicle.insuranceExpiry);
 
     return (
         <div style={styles.card}>
@@ -35,9 +58,23 @@ function VehicleCard({ vehicle, user, onDelete }) {
                     <p style={styles.detailItem}>
                         <strong>Owner:</strong> {vehicle.owner}
                     </p>
-                    <p style={styles.detailItem}>
-                        <strong>Insurance Expiry:</strong> {vehicle.insuranceExpiry}
-                    </p>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                        <span style={styles.detailItem}>
+                            <strong>Insurance Expiry:</strong> {vehicle.insuranceExpiry}
+                        </span>
+                        {insuranceTag && (
+                            <span style={{
+                                fontSize: '11px',
+                                fontWeight: 'bold',
+                                padding: '2px 8px',
+                                borderRadius: '4px',
+                                backgroundColor: insuranceTag.bg,
+                                color: insuranceTag.color
+                            }}>
+                                {insuranceTag.text}
+                            </span>
+                        )}
+                    </div>
                 </div>
 
                 {user && user.role === 'admin' && (

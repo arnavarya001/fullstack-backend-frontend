@@ -55,6 +55,26 @@ function VehicleList({ user }) {
         }
     }
 
+    function getInsuranceTag(expiryDate) {
+        if (!expiryDate) return null;
+        const today = new Date();
+        const expDate = new Date(expiryDate);
+        if (isNaN(expDate.getTime())) return null;
+
+        today.setHours(0, 0, 0, 0);
+        expDate.setHours(0, 0, 0, 0);
+
+        const diffDays = Math.ceil((expDate - today) / (1000 * 60 * 60 * 24));
+
+        if (diffDays < 0) {
+            return { text: 'Expired', bg: '#fee2e2', color: '#dc2626' };
+        }
+        if (diffDays <= 30) {
+            return { text: 'Expiring soon', bg: '#ffedd5', color: '#c2410c' };
+        }
+        return null;
+    }
+
     return (
         <div style={{ backgroundColor: '#f5f5f5', minHeight: '90vh', padding: '20px' }}>
             <div style={styles.header}>
@@ -112,27 +132,43 @@ function VehicleList({ user }) {
                 </p>
             ) : (
                 <div style={styles.container}>
-                    {vehicles.map((vehicle) => (
-                        <div key={vehicle._id} style={styles.card}>
-                            <div style={styles.cardTop}>
-                                <span style={styles.numberBadge}>{vehicle.vehicleNumber}</span>
-                                <span style={styles.statusBadge(vehicle.status)}>
-                                    {vehicle.status}
-                                </span>
-                            </div>
+                    {vehicles.map((vehicle) => {
+                        const insuranceTag = getInsuranceTag(vehicle.insuranceExpiry);
+                        return (
+                            <div key={vehicle._id} style={styles.card}>
+                                <div style={styles.cardTop}>
+                                    <span style={styles.numberBadge}>{vehicle.vehicleNumber}</span>
+                                    <span style={styles.statusBadge(vehicle.status)}>
+                                        {vehicle.status}
+                                    </span>
+                                </div>
 
-                            <div style={styles.cardBody}>
-                                <h3 style={{ margin: '10px 0 5px' }}>{vehicle.model}</h3>
-                                <p style={{ color: '#555', margin: '4px 0' }}>
-                                    Type: <strong>{vehicle.type}</strong>
-                                </p>
-                                <p style={{ color: '#555', margin: '4px 0' }}>
-                                    Owner: <strong>{vehicle.owner}</strong>
-                                </p>
-                                <p style={{ color: '#777', fontSize: '13px', margin: '4px 0' }}>
-                                    Insurance Expiry: {vehicle.insuranceExpiry}
-                                </p>
-                            </div>
+                                <div style={styles.cardBody}>
+                                    <h3 style={{ margin: '10px 0 5px' }}>{vehicle.model}</h3>
+                                    <p style={{ color: '#555', margin: '4px 0' }}>
+                                        Type: <strong>{vehicle.type}</strong>
+                                    </p>
+                                    <p style={{ color: '#555', margin: '4px 0' }}>
+                                        Owner: <strong>{vehicle.owner}</strong>
+                                    </p>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginTop: '6px' }}>
+                                        <span style={{ color: '#777', fontSize: '13px' }}>
+                                            Insurance Expiry: {vehicle.insuranceExpiry}
+                                        </span>
+                                        {insuranceTag && (
+                                            <span style={{
+                                                fontSize: '11px',
+                                                fontWeight: 'bold',
+                                                padding: '2px 8px',
+                                                borderRadius: '4px',
+                                                backgroundColor: insuranceTag.bg,
+                                                color: insuranceTag.color
+                                            }}>
+                                                {insuranceTag.text}
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
 
                             {user && user.role === 'admin' && (
                                 <div style={styles.cardActions}>
@@ -148,7 +184,8 @@ function VehicleList({ user }) {
                                 </div>
                             )}
                         </div>
-                    ))}
+                    );
+                })}
                 </div>
             )}
         </div>
@@ -235,14 +272,25 @@ const styles = {
         fontSize: '14px',
         color: '#111'
     },
-    statusBadge: (status) => ({
-        fontSize: '12px',
-        fontWeight: 'bold',
-        padding: '3px 8px',
-        borderRadius: '10px',
-        backgroundColor: status === 'Active' ? '#e6f7ec' : status === 'Under Maintenance' ? '#fef3c7' : '#fee2e2',
-        color: status === 'Active' ? '#15803d' : status === 'Under Maintenance' ? '#b45309' : '#b91c1c'
-    }),
+    statusBadge: (status) => {
+        let bg = '#dcfce7';
+        let color = '#15803d';
+        if (status === 'Under Maintenance' || status === 'Maintenance') {
+            bg = '#fef3c7';
+            color = '#b45309';
+        } else if (status === 'Inactive') {
+            bg = '#fee2e2';
+            color = '#b91c1c';
+        }
+        return {
+            fontSize: '12px',
+            fontWeight: 'bold',
+            padding: '3px 8px',
+            borderRadius: '10px',
+            backgroundColor: bg,
+            color: color
+        };
+    },
     cardBody: {
         padding: '10px 0'
     },
