@@ -6,6 +6,7 @@ dotenv.config();
 const connectDB = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
 const vehicleRoutes = require('./routes/vehicleRoutes');
+const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
 const PORT = process.env.PORT || 5001;
@@ -27,10 +28,7 @@ app.get('/api', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/vehicles', vehicleRoutes);
 
-app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).json({ message: err.message || 'Internal Server Error' });
-});
+app.use(errorHandler);
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
