@@ -1,6 +1,26 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
+function getInsuranceTag(expiryDate) {
+    if (!expiryDate) return null;
+    const today = new Date();
+    const expDate = new Date(expiryDate);
+    if (Number.isNaN(expDate.getTime())) return null;
+
+    today.setHours(0, 0, 0, 0);
+    expDate.setHours(0, 0, 0, 0);
+
+    const diffDays = Math.ceil((expDate - today) / (1000 * 60 * 60 * 24));
+
+    if (diffDays < 0) {
+        return { text: 'Expired', bg: '#fee2e2', color: '#dc2626' };
+    }
+    if (diffDays <= 30) {
+        return { text: 'Expiring soon', bg: '#ffedd5', color: '#c2410c' };
+    }
+    return null;
+}
+
 function VehicleCard({ vehicle, user, onDelete }) {
     const getStatusStyle = (status) => {
         switch (status) {
@@ -14,26 +34,6 @@ function VehicleCard({ vehicle, user, onDelete }) {
             default:
                 return { backgroundColor: '#f1f5f9', color: '#475569' };
         }
-    };
-
-    const getInsuranceTag = (expiryDate) => {
-        if (!expiryDate) return null;
-        const today = new Date();
-        const expDate = new Date(expiryDate);
-        if (isNaN(expDate.getTime())) return null;
-
-        today.setHours(0, 0, 0, 0);
-        expDate.setHours(0, 0, 0, 0);
-
-        const diffDays = Math.ceil((expDate - today) / (1000 * 60 * 60 * 24));
-
-        if (diffDays < 0) {
-            return { text: 'Expired', bg: '#fee2e2', color: '#dc2626' };
-        }
-        if (diffDays <= 30) {
-            return { text: 'Expiring soon', bg: '#ffedd5', color: '#c2410c' };
-        }
-        return null;
     };
 
     const insuranceTag = getInsuranceTag(vehicle.insuranceExpiry);
