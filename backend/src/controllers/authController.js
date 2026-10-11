@@ -4,7 +4,7 @@ const generateToken = require('../utils/generateToken');
 
 const register = async (req, res) => {
     try {
-        const { name, email, password, role } = req.body;
+        const { name, email, password, role, adminSecretKey, adminKey } = req.body;
 
         if (!name || !email || !password) {
             return res.status(400).json({ message: 'Please enter all fields' });
@@ -15,6 +15,19 @@ const register = async (req, res) => {
             return res.status(400).json({ message: 'User already exists with this email' });
         }
 
+        let assignedRole = 'user';
+        const secretKey = process.env.ADMIN_SECRET_KEY;
+        const providedKey = adminSecretKey || adminKey;
+
+        if (role && role.toLowerCase() === 'admin') {
+            if (!secretKey || providedKey !== secretKey) {
+                return res.status(403).json({ message: 'Cannot register as admin without a valid admin secret key' });
+            }
+            assignedRole = 'admin';
+        } else if (providedKey && secretKey && providedKey === secretKey) {
+            assignedRole = 'admin';
+        }
+
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
 
@@ -22,7 +35,7 @@ const register = async (req, res) => {
             name,
             email,
             password: hashedPassword,
-            role: 'user'
+            role: assignedRole
         });
 
         const token = generateToken(user._id, user.role);
