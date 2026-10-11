@@ -7,7 +7,7 @@ A full-stack MERN application built for tracking, managing, and monitoring vehic
 
 - **Frontend (Vercel):** [https://vehicle-management-system-frontend.vercel.app](https://your-frontend-url.vercel.app)
 - **Backend (Render / Railway):** [https://vehicle-management-system-api.onrender.com](https://your-backend-url.onrender.com)
-- **GitHub Repository:** [https://github.com/your-username/vehicle-management-system](https://github.com/your-username/vehicle-management-system)
+- **GitHub Repository:** [https://github.com/your-username/vehicle-management-system](https://github.com/kjaid0341-creator/VEHICLE-MANAGEMENT-)
 
 ---
 
