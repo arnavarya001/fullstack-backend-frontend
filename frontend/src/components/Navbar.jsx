@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 function Navbar({ user, setUser }) {
@@ -17,6 +16,7 @@ function Navbar({ user, setUser }) {
 
             <div style={styles.links}>
                 <Link to="/" style={styles.link}>Vehicles</Link>
+                <Link to="/fleet" style={styles.link}>Fleet View</Link>
 
                 {user && user.role === 'admin' && (
                     <Link to="/add-vehicle" style={styles.addBtn}>+ Add Vehicle</Link>
